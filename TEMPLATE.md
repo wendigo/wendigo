@@ -10,7 +10,7 @@ Feel free to reach me if you want to ask me about anything 🙂
 
 #### Latest activity
 
-<!--GITHUB_ACTIVITY:{"rows": 5, "raw": true}-->
+<!--GITHUB_ACTIVITY:{"rows": 5}-->
 
 <p align="center">
   Last update on:
