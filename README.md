@@ -10,13 +10,13 @@ Feel free to reach me if you want to ask me about anything 🙂
 
 #### Latest activity
 
-⬆️ Pushed 1 commit to wendigo/wendigo
-⬆️ Pushed 1 commit to wendigo/wendigo
-💪 Opened PR #4727 in prestosql/presto
-⬆️ Pushed 2 commits to wendigo/presto
-⬆️ Pushed 2 commits to wendigo/presto
+* ⬆️ Pushed 1 commit to wendigo/wendigo
+* ⬆️ Pushed 1 commit to wendigo/wendigo
+* ⬆️ Pushed 1 commit to wendigo/wendigo
+* 💪 Opened PR #4727 in prestosql/presto
+* ⬆️ Pushed 2 commits to wendigo/presto
 
 <p align="center">
   Last update on:
-  <b>2020-08-07T09:33:26Z</b>
+  <b>2020-08-07T09:35:18Z</b>
 </p>
