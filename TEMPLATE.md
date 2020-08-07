@@ -7,3 +7,12 @@ Currently, I'm working @[Starburst Data](https://github.com/starburstdata) which
 You can find more details on me @[wendigo.pl](https://wendigo.pl).
 
 Feel free to reach me if you want to ask me about anything 🙂
+
+#### Latest activity
+
+<!--GITHUB_ACTIVITY:{"rows": 5, "raw": true}-->
+
+<p align="center">
+  Last update on:
+  <b><!--TIMESTAMP--></b>
+</p>
