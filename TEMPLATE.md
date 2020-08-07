@@ -8,11 +8,12 @@ You can find more details on me @[wendigo.pl](https://wendigo.pl).
 
 Feel free to reach me if you want to ask me about anything 🙂
 
-#### Latest activity
+#### Some nerd stats about me
 
-<!--GITHUB_ACTIVITY:{"rows": 20}-->
+I've got a Github account for {{ ACCOUNT_AGE }} years. I've filled {{ ISSUES }} issues and opened {{ PULL_REQUESTS }} pull requests so far. I've also made {{ COMMITS }} contributions to {{ REPOSITORIES_CONTRIBUTED_TO }} repositories.
 
-<p align="center">
-  Last update on:
-  <b><!--TIMESTAMP--></b>
-</p>
+Most of the time I'm creating software in these languages:
+
+{{ LANGUAGE_TEMPLATE_START:max=10 }}
+![{{LANGUAGE_NAME}}](https://img.shields.io/static/v1?style=flat-square&label=%E2%A0%80&color=555&labelColor={{LANGUAGE_COLOR:uri}}&message={{LANGUAGE_NAME:uri}}%EF%B8%B1{{LANGUAGE_PERCENT:uri}}%25)
+{{ LANGUAGE_TEMPLATE_END }}

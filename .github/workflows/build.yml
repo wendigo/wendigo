@@ -1,5 +1,6 @@
 on:
-  schedule:    
+  push:
+  schedule:
     - cron:  '0 * * * *'
 
 jobs:
@@ -10,11 +11,10 @@ jobs:
       with:
         persist-credentials: false
         fetch-depth: 0
-    - name: Update README.md
-      uses: actions-js/profile-readme@master
+    - name: Generate README.md
+      uses: teoxoy/profile-readme-stats@master
       with:
-        username: wendigo
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.USER_TOKEN }}
     - name: Commit & Push changes
       uses: actions-js/push@master
       with:
