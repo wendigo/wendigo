@@ -2,7 +2,7 @@
 
 My name is Mateusz 'Serafin' Gajewski and I'm a software engineer, an architect and a team lead from Poland 🇵🇱
 
-Currently, I'm working @[Starburst Data](https://github.com/starburstdata) which is a company behind [PrestoSQL](http://github.com/prestosql/presto).
+Currently, I'm working @[Starburst Data](https://github.com/starburstdata) which is a company behind [Trino](http://github.com/trinodb/trino).
 
 You can find more details on me @[wendigo.pl](https://wendigo.pl).
 
@@ -10,7 +10,7 @@ Feel free to reach me if you want to ask me about anything 🙂
 
 #### Some nerd stats about me
 
-I've got a Github account for **11** years. I've filled **58** issues and opened **539** pull requests so far. I've also made **1625** contributions to **23** different repositories.
+I've got a Github account for **11** years. I've filled **58** issues and opened **539** pull requests so far. I've also made **1626** contributions to **23** different repositories.
 
 Most of the time I'm creating software in these languages:
 
