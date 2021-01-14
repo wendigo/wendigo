@@ -2,9 +2,9 @@
 
 My name is Mateusz 'Serafin' Gajewski and I'm a software engineer, an architect and a team lead from Poland 🇵🇱
 
-Currently, I'm working @[Starburst Data](https://github.com/starburstdata) which is a company behind [Trino](http://github.com/trinodb/trino).
+Currently, I'm working in [Starburst Data](https://github.com/starburstdata) which is a main contributor to [Trino](http://github.com/trinodb/trino) project.
 
-You can find more details on me @[wendigo.pl](https://wendigo.pl).
+You can find more details about me on my website [wendigo.pl](https://wendigo.pl).
 
 Feel free to reach me if you want to ask me about anything 🙂
 
