@@ -15,7 +15,7 @@ jobs:
       uses: actions-js/profile-readme@master
       with:
         username: wendigo
-        github_token: ${{ secrets.PROFILE_TOKEN }}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
     - name: Commit & Push changes
       uses: actions-js/push@master
       with:
