@@ -139,21 +139,21 @@ The header is used by the client to request a given protocol extension. If it is
 
 ## Implementation considerations
 
-### Extension
+### Extension
 
 Protocol extension describes the serialization format (like JSON), type encoding, and data retrieval requirements (compression, encryption) and must be treated as a whole which means that both server and client understand the extension in the same way and supports control metadata fields.
 
-### Segments
+### Segments
 
 It's up to the engine to decide whether the result set will be inlined, spooled, or both (depending on the result size). For small results, spooling on the storage adds overhead but for big result sizes, spooling can complete queries faster and allow the client to move at its own pace or distribute work to multiple threads.
 
 The engine can also decide whether it will return a partial result set (consecutive `segments` are returned when `nextURI` is fetched) or all of the segments will be returned at once when the engine has finished processing the query.
 
-### Plugabillity
+### Plugabbility
 
 An extension is a shared definition between the client and the server, therefore it can't be a Plugin SPI interface. In the initial implementation, we do not plan to provide an external SPI that will allow us to supplement the client and the server with new extensions. These new extensions will be a part of the distribution for both client and server.
 
-### Backward compatibility
+### Backward compatibility
 
 Above and for all, the new extensions can't break existing protocols as these are opt-in client/server features. At any given moment, the client can fall back to the original, unmodified v1 protocol to maintain backward compatibility.
 
