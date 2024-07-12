@@ -54,20 +54,23 @@ The important fields related to result set retrieval are:
 
 ## Spooled protocol extension
 
-To express the partial result sets having a different encoding, spooled protocol extension is introduced, which contains **two** backward and forward-compatible changes to the existing set of resources and `QueryResults` object. 
+To express the partial result sets having a different encoding, `spooled protocol extension` is introduced, which contains backward and forward-compatible changes to the existing protocol.
 
-These two changes are:
+These changes are:
 
-- Extended **data** field on-the-wire representation and meaning,
-- Additional header (**Trino-Query-Data-Encoding**)
+- New **data** field on-the-wire representation and semantics,
+- Additional headers (**Trino-Query-Data-Encoding**)
 
 ### Trino-Query-Data-Encoding
 
-The header is used by the client to specify a supported encodings in the order of preference (comma separated). If any of the encodings is supported by the server, the client can expect the **`QueryResults.data`** in a new format. If it's not supported, server fallbacks to the existing behaviour for compatibility.
+The header is used by the client libraries to use the new `spooled protocol extension` and contains the list of encoding in the order of preference (comma separated). If any of the encodings is supported by the server, the client can expect the **`QueryResults.data`** to be returned in a new format. If it's not supported, server fallbacks to the existing behaviour for compatibility.
+
+> [!NOTE]
+> Once the encoding is determined, it's fixed for the duration of the query.
 
 ### EncodedQueryData
 
-**`EncodedQueryData`** is the extension of the **`QueryResults.data`** field that has following on-the-wire representation:
+**`EncodedQueryData`** is the extension of the **`QueryResults.data`** field that has the following on-the-wire representation:
 
 ```json
 {
