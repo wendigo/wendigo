@@ -66,7 +66,7 @@ These changes are:
 The header is used by the client libraries to use the new `spooled protocol extension` and contains the list of encoding in the order of preference (comma separated). If any of the encodings is supported by the server, the client can expect the **`QueryResults.data`** to be returned in a new format. If it's not supported, server fallbacks to the existing behaviour for compatibility.
 
 > [!NOTE]
-> Once the encoding is determined, it's fixed for the duration of the query.
+> Once the encoding is negotiated between the client and the server, it stays the same for the duration of the query which means that client can expect results in a single format - either existing one or extended.
 
 ### EncodedQueryData
 
