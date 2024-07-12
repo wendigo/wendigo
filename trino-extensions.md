@@ -5,14 +5,13 @@
 
 ## Background
 
-The existing [Trino client](https://trino.io/docs/current/develop/client-protocol.html) protocol is over 10 years old and served different purpose upon its inception than the use cases that we want to support today. These new requirements that we want to address include:
+The existing [Trino client](https://trino.io/docs/current/develop/client-protocol.html) protocol is over 10 years old and served different purpose upon its inception than the use cases that we want to support today. These new requirements include:
 
-- Ability to retrieve data in parallel for faster result retrieval,
-- Support for other than JSON encoding formats (both row and column-oriented),
-- Moving data encoding from coordinator to workers.
-  
+- Ability to retrieve the result set, out-of-order, in parallel,
+- Support for more space and CPU-efficient encoding formats (row and column-oriented),
+- Reducing the load on the coordinator during result set generation.
 
-To address these challenges, we are going to introduce series of changes to the existing protocol v1 called <u>spooled protocol extension</u>, which do not change the structure and flow of the existing protocol but extend its semantics in a backward-compatible fashion.
+To address aforementioned requirements, we are going to introduce an extension to the existing protocol called <u>spooled protocol</u>, which extend its semantics in a backward-compatible fashion.
 
 ## Existing client protocol
 
@@ -46,7 +45,7 @@ Both endpoints share the same *QueryResults* definition:
 > [!NOTE]
 > Some of the query results fields were omitted for brevity.
 
-The most important fields related to result set retrieval are:
+The important fields related to result set retrieval are:
 
 - **`data`** - contains encoded JSON data as list of row values. Individual values are encoded as a result of the *Type.getObjectValue* call (important: these are low-level, raw representations that are interpreted on the client side (see: AbstractTrinoResultSet).
 - **`columns`** - contains list of columns and types descriptors. It's worth to note that `data` field can't have non-null value without `column` information present,
