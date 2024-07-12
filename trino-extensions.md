@@ -106,15 +106,14 @@ The header is used by the client libraries to use the new `spooled protocol exte
 
 Meaning of the fields is following:
 
-- **`encodingId`** - the id of the encoding format as requested by the client in the `Trino-Query-Data-Encoding` header. These are known and shared by both the client and the server and are part of the spooled protocol extension,
-- **`metadata`** - the Map<String, Object> that represents metadata of the partial result set, i.e. decryption key used to decrypt encoded data,
-- **`segments`** - list of data segments representing partial result set. Single response can return arbitrary number of segments.
+- **`encodingId`** - the string identifier of the encoding format as requested by the client in the `Trino-Query-Data-Encoding` header. These are known and shared by both the client and the server and are part of the `spooled protocol extension` definition,
+- **`metadata`** - the `Map<String, Object>` that represents metadata of the partial result set, i.e. decryption key used to decrypt encoded data,
+- **`segments`** - list of data segments representing partial result set. Single `QueryResults` object can contain arbitrary number of segments which are always ordered.
   
-
 ### DataSegment
 
 **`DataSegment`** is a representation of the encoded data and has two distinct types: `inline` and `spooled` with following semantics:
-- **`inline`** segment holds encoded, partial result set data in the `byte[] data` field base64-encoded,
+- **`inline`** segment holds encoded, partial result set data in the base64-encoded `data` field,
 - **`spooled`** segment type points to the encoded partial result set spooled in the configured storage location. Location designated by the `URI dataUri` field value is used to retrieve spooled `byte[]` data from the spooling storage. `dataUri` is opaque and contains an authentication information which means that client implementation can retrieve spooled segment data by doing an ordinary `GET` HTTP call without any processing of the URI. It's worth to note that URI can point to arbitrary location including endpoints exposed on the coordinator or storage used for spooling (i.e. presigned URIs on S3). This depends on the actual implementation of the spooling manager and server configuration.
 
 > [!NOTE]
