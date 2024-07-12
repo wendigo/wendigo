@@ -8,8 +8,8 @@
 The existing [Trino client](https://trino.io/docs/current/develop/client-protocol.html) protocol is over 10 years old and served different purpose upon its inception than the use cases that we want to support today. These new requirements include:
 
 - Ability to retrieve the result set, out-of-order, in parallel,
-- Support for more space and CPU-efficient encoding formats (row and column-oriented),
-- Reducing the load on the coordinator during result set generation.
+- Support for more space and CPU-efficient result set formats (row and column-oriented),
+- Reduce the load on the coordinator during result set generation by moving it to the workers.
 
 To address aforementioned requirements, we are going to introduce an extension to the existing protocol called <u>spooled protocol</u>, which extend its semantics in a backward-compatible fashion.
 
