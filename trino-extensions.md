@@ -8,10 +8,8 @@
 The existing [Trino client](https://trino.io/docs/current/develop/client-protocol.html) protocol is over 10 years old and served different purpose upon its inception than the use cases that we want to support today. These new requirements that we want to address include:
 
 - Ability to retrieve data in parallel for faster result retrieval,
-  
 - Support for other than JSON encoding formats (both row and column-oriented),
-  
-- Pushing data encoding and result retrieval from coordinator to workers.
+- Moving data encoding from coordinator to workers.
   
 
 To address these challenges, we are going to introduce series of changes to the existing protocol v1 called <u>spooled protocol extension</u>, which do not change the structure and flow of the existing protocol but extend its semantics in a backward-compatible fashion.
@@ -51,9 +49,7 @@ Both endpoints share the same *QueryResults* definition:
 The most important fields related to result set retrieval are:
 
 - **`data`** - contains encoded JSON data as list of row values. Individual values are encoded as a result of the *Type.getObjectValue* call (important: these are low-level, raw representations that are interpreted on the client side (see: AbstractTrinoResultSet).
-  
 - **`columns`** - contains list of columns and types descriptors. It's worth to note that `data` field can't have non-null value without `column` information present,
-  
 - **`nextUri`** - used to retrieve next partial result set.
   
 
@@ -109,18 +105,14 @@ The header is used by the client to specify a supported encodings in the order o
 Meaning of the fields is following:
 
 - **`encodingId`** - the id of the encoding format as requested by the client in the `Trino-Query-Data-Encoding` header. These are known and shared by both the client and the server and are part of the spooled protocol extension,
-  
 - **`metadata`** - the Map<String, Object> that represents metadata of the partial result set, i.e. decryption key used to decrypt encoded data,
-  
 - **`segments`** - list of data segments representing partial result set. Single response can return arbitrary number of segments.
   
 
 ### DataSegment
 
 **`DataSegment`** is a representation of the encoded data and has two distinct types: `inline` and `spooled` with following semantics:
-
 - **`inline`** segment holds encoded, partial result set data in the `byte[] data` field base64-encoded,
-  
 - **`spooled`** segment type points to the encoded partial result set spooled in the configured storage location. Location designated by the `URI dataUri` field value is used to retrieve spooled `byte[]` data from the spooling storage. `dataUri` is opaque and contains an authentication information which means that client implementation can retrieve spooled segment data by doing an ordinary `GET` HTTP call without any processing of the URI. It's worth to note that URI can point to arbitrary location including endpoints exposed on the coordinator or storage used for spooling (i.e. presigned URIs on S3). This depends on the actual implementation of the spooling manager and server configuration.
   
 
@@ -135,9 +127,7 @@ Meaning of the fields is following:
 Following metadata attributes are always present:
 
 - **`offset`** of the data segment in relation to the whole result set (`long`),
-  
 - **`rowsCount`** number of the rows in the data segment (`long`),
-  
 - **`byteSize`** size of the encoded data segment (`long`).
   
 
@@ -150,7 +140,6 @@ Optional metadata attributes are part of the encoding definition shared between 
 Encoding describes the serialization format (like JSON) and other information required to both write (encode) and read (decode) result set as data segments. Example of encodings are:
 
 - `json-ext+zstd` which reads as JSON serialization with ZSTD compression,
-  
 - `parquet+snappy` which reads as parquet encoding with Snappy compression.
   
 
