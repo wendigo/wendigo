@@ -14,9 +14,9 @@ The existing [Trino client](https://trino.io/docs/current/develop/client-protoco
 
 To address these challenges, we are going to introduce series of changes to the existing protocol v1 called <u>spooled protocol extension</u>, which do not change the structure and flow of the existing protocol but extend its semantics in a backward-compatible fashion.
 
-## Existing protocol v1
+## Existing client protocol
 
-The current client protocol consists of two endpoints that are used to submit queries and retrieve partial results:
+The current protocol consists of two endpoints that are used to submit queries and retrieve partial results:
 
 - submission (**POST /v1/statement**)
 - partial result set retrieval (**GET /v1/statement/executing**)
