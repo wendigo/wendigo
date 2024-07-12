@@ -173,3 +173,54 @@ We plan to implement spooling on the worker side which means that when the resul
 #### Security
 
 We plan to add a support for data segment encryption at the later stage with the per-query, ephemeral encryption key. This is yet to be defined.
+
+### Proposed API/SPI
+
+#### Server-side
+
+```java
+public interface QueryDataEncoderFactory
+{
+    QueryDataEncoder create(Session session);
+
+    String encodingId();
+}
+```
+Used to create a new `QueryDataEncoder`.
+
+```java
+public interface QueryDataEncoder
+{
+    Slice encode(Session session, List<OutputColumn> columns, List<Page> pages);
+
+    String encodingId();
+}
+```
+Used to encode the data to the output format.
+
+```java
+public interface SpoolingManager
+{
+    SpoolingSegmentId spool(String queryId, SpoolingSegmentInfo segmentInfo, Slice data)
+            throws Exception;
+
+    SliceInput unspool(SpoolingSegmentId segment)
+            throws Exception;
+
+    void drop(SpoolingSegmentId segment);
+
+    Optional<URI> directLocation(SpoolingSegmentId segment);
+```
+Used to spool and unspool data segments.
+
+#### Client-side
+
+```java
+public interface QueryDataDecoder
+{
+    @Nullable Iterable<List<Object>> decode(@Nullable byte[] data, List<Column> columns);
+
+    String encodingId();
+}
+```
+Used to decode the data segment.
