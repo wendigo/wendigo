@@ -1,29 +1,29 @@
-# Trino protocol v1 extensions (protocol v1.5)
+# Spooled Trino protocol (protocol v1+)
 
 > [!IMPORTANT]
-> This is a draft document and can change in the future.
+> This document is a design proposal and can change in the future.
 
 ## Background
 
-The existing [Trino client](https://trino.io/docs/current/develop/client-protocol.html) protocol is over 10 years old and served different purposes upon its conception than the use cases that we want to support today. These new use cases include:
+The existing [Trino client](https://trino.io/docs/current/develop/client-protocol.html) protocol is over 10 years old and served different purpose upon its inception than the use cases that we want to support today. These new requirements that we want to address include:
 
-- Ability to retrieve data in parallel by multiple threads for faster data movement,
+- Ability to retrieve data in parallel for faster result retrieval,
   
-- Ability to retrieve data from multiple clients for faster data processing,
+- Support for other than JSON encoding formats (both row and column-oriented),
   
-- Support for other than JSON serialization formats (both row and column-oriented).
+- Pushing data encoding and result retrieval from coordinator to workers.
   
 
-To address these challenges, we are going to introduce intermediate changes to the existing protocol v1 called <u>protocol extensions</u> which do not change the structure and flow of the existing protocol but extend its semantics in a backward-compatible way.
+To address these challenges, we are going to introduce series of changes to the existing protocol v1 called <u>spooled protocol extension</u>, which do not change the structure and flow of the existing protocol but extend its semantics in a backward-compatible fashion.
 
 ## Existing protocol v1
 
 The current client protocol consists of two endpoints that are used to submit queries and retrieve partial results:
 
-- QueuedStatementResource (**POST /v1/statement**)
-- ExecutingStatementResource (**GET /v1/statement/executing**)
+- submission (**POST /v1/statement**)
+- partial result set retrieval (**GET /v1/statement/executing**)
 
-Both endpoints share the *QueryResults* object:
+Both endpoints share the same *QueryResults* definition:
 
 ```json
 {
@@ -46,117 +46,138 @@ Both endpoints share the *QueryResults* object:
 ```
 
 > [!NOTE]
-> Some of the result fields were omitted for brevity.
+> Some of the query results fields were omitted for brevity.
 
-The most important fields related to data transmission are:
+The most important fields related to result set retrieval are:
 
-- **`data`** contains serialized data in the array of arrays of object format. Values are encoded as a result of the *Type.getObjectValue* call (important: these are low-level, raw representations that are decoded on the client side (see: AbstractTrinoResultSet).
+- **`data`** - contains encoded JSON data as list of row values. Individual values are encoded as a result of the *Type.getObjectValue* call (important: these are low-level, raw representations that are interpreted on the client side (see: AbstractTrinoResultSet).
   
-- **`columns`** contain a list of columns and types descriptors. data cannot be present without column information.
+- **`columns`** - contains list of columns and types descriptors. It's worth to note that `data` field can't have non-null value without `column` information present,
   
-- **`nextUri`** is used to point a client to the next endpoint to retrieve.
+- **`nextUri`** - used to retrieve next partial result set.
   
 
-## Protocol extensions v1.5
+## Spooled protocol extension
 
-To express the partial/final results in a different format, protocol extensions are introducing two backward and forward-compatible changes to the existing set of resources and QueryResults object. 
+To express the partial result sets having a different encoding, spooled protocol extension is introduced, which contains **two** backward and forward-compatible changes to the existing set of resources and `QueryResults` object. 
 
 These two changes are:
 
-- New QueryResults.**data** field representation and meaning,
-- Additional header (**Trino-Query-Data-Extension**)
+- Extended **data** field on-the-wire representation and meaning,
+- Additional header (**Trino-Query-Data-Encoding**)
 
-### Trino-Query-Data-Extension
+### Trino-Query-Data-Encoding
 
-The header is used by the client to request a given protocol extension. If it is supported, the client can expect the `QueryResults.data` in a new format. If it's not supported, `USER_ERROR` is raised.
+The header is used by the client to specify a supported encodings in the order of preference (comma separated). If any of the encodings is supported by the server, the client can expect the **`QueryResults.data`** in a new format. If it's not supported, server fallbacks to the existing behaviour for compatibility.
 
-### ExtQueryData
+### EncodedQueryData
 
-`ExtQueryData` is an alternative representation of the `QueryResults.data` field that carries over the following subfields:
+**`EncodedQueryData`** is the extension of the **`QueryResults.data`** field that has following on-the-wire representation:
 
-- **`extension`** - the id of the extension format as requested by the client in the `Trino-Query-Data-Extension` header. These are known to both the client and the server and are part of the protocol extensions.
+```json
+{
+  "id": "20160128_214710_00012_rk68b",
+  "infoUri": "http://coordinator/query.html?20160128_214710_00012_rk68b",
+  "nextUri": null,
+  "columns": [...],
+  "data": {
+    "encodingId": "json-ext",
+    "segments": [
+      {
+        "type": "inline",
+        "data": "c3VwZXI=",
+        "metadata": {
+          "offset": 0,
+          "rowsCount": 100,
+          "byteSize": 5
+        }
+      },
+      {
+        "type": "spooled",
+        "dataUri": "http://localhost:8080/v1/download/20160128_214710_00012_rk68b/segments/2",
+        "metadata": {
+          "offset": 200,
+          "rowsCount": 100,
+          "byteSize": 1024
+        }
+      }
+    ]
+  }
+}
+```
+
+Meaning of the fields is following:
+
+- **`encodingId`** - the id of the encoding format as requested by the client in the `Trino-Query-Data-Encoding` header. These are known and shared by both the client and the server and are part of the spooled protocol extension,
   
-- **`metadata`** - the Map<String, Object> that allows attaching additional metadata to the results, i.e. encoded schema, number of rows so far, size of the result, etc.
+- **`metadata`** - the Map<String, Object> that represents metadata of the partial result set, i.e. decryption key used to decrypt encoded data,
   
-- **`segments`** - List<DataSegment> that allows returning one or more `DataSegment` objects
+- **`segments`** - list of data segments representing partial result set. Single response can return arbitrary number of segments.
   
 
 ### DataSegment
 
-`DataSegment` is a pointer to the data and has two types - `inline` and `spooled`.
+**`DataSegment`** is a representation of the encoded data and has two distinct types: `inline` and `spooled` with following semantics:
 
-- **`inline`** data segment type encodes a partial result in the `byte[] values` field.
+- **`inline`** segment holds encoded, partial result set data in the `byte[] data` field base64-encoded,
   
-- **`spooled`** data segment type encodes a partial result as a spooled file in the URI location stored in the `URI uri` field. URIs are opaque and can point to either coordinator resource, worker resource, or directly to the storage in the form of the signed URI. This will depend on the actual implementation and runtime configuration.
+- **`spooled`** segment type points to the encoded partial result set spooled in the configured storage location. Location designated by the `URI dataUri` field value is used to retrieve spooled `byte[]` data from the spooling storage. `dataUri` is opaque and contains an authentication information which means that client implementation can retrieve spooled segment data by doing an ordinary `GET` HTTP call without any processing of the URI. It's worth to note that URI can point to arbitrary location including endpoints exposed on the coordinator or storage used for spooling (i.e. presigned URIs on S3). This depends on the actual implementation of the spooling manager and server configuration.
   
 
-`DataSegment` contains a `metadata` field of type Map<String, Object> that allows attaching additional metadata to the results, i.e. number of rows in the segment, uncompressed size, encryption key, etc.
+> [!IMPORTANT]
+> In order to support the spooled protocol, client implementations need to support both inline and spooled representations as server can use these types interchangeably.
 
-### Extended QueryResults
+> [!CAUTION]
+> Client implementation must not send any additional information when retrieving spooled data segment, particularly the authentication headers used to authenticate to a Trino.
 
-```json
-{
-  ...
-  "columns": [
-    {
-      "name": "_col0",
-      "type": "bigint",
-      "typeSignature": {
-        "rawType": "bigint",
-        "arguments": []
-      }
-    }
-  ],
-  "data": {
-    "extension": "json-v2",
-    "metadata": {
-        "encryption-key": "SecretEncryptionKey",
-        "compression": "snappy"
-    },
-    "segments": [
-      {
-        "type": "inline",
-        "values": "W1sxMF0sIFsyMF1d", // base64 encoded byte[]
-        "metadata": {
-          "offset": 0,
-          "rows": 12,
-          "size": 1203
-      },
-      {
-        "type": "spooled",
-        "uri": "http://coordinator/v1/segments/segment-id", // base64 encoded byte[]
-        "metadata": {
-          "offset": 12,
-          "rows": 5,
-          "size": 1503
-        }
-      }
-    ]
-  },
-  ...
-}
-```
+**`DataSegment`** contains a **`metadata`** field of type `Map<String, Object>` with attributes describing a data segment.
 
-## Implementation considerations
+Following metadata attributes are always present:
 
-### Extension
+- **`offset`** of the data segment in relation to the whole result set (`long`),
+  
+- **`rowsCount`** number of the rows in the data segment (`long`),
+  
+- **`byteSize`** size of the encoded data segment (`long`).
+  
 
-Protocol extension describes the serialization format (like JSON), type encoding, and data retrieval requirements (compression, encryption) and must be treated as a whole which means that both server and client understand the extension in the same way and supports control metadata fields.
+Optional metadata attributes are part of the encoding definition shared between the client and server implementations.
 
-### Segments
+### Implementation considerations
 
-It's up to the engine to decide whether the result set will be inlined, spooled, or both (depending on the result size). For small results, spooling on the storage adds overhead but for big result sizes, spooling can complete queries faster and allow the client to move at its own pace or distribute work to multiple threads.
+#### Encodings
 
-The engine can also decide whether it will return a partial result set (consecutive `segments` are returned when `nextURI` is fetched) or all of the segments will be returned at once when the engine has finished processing the query.
+Encoding describes the serialization format (like JSON) and other information required to both write (encode) and read (decode) result set as data segments. Example of encodings are:
 
-### Plugabbility
+- `json-ext+zstd` which reads as JSON serialization with ZSTD compression,
+  
+- `parquet+snappy` which reads as parquet encoding with Snappy compression.
+  
 
-An extension is a shared definition between the client and the server, therefore it can't be a Plugin SPI interface. In the initial implementation, we do not plan to provide an external SPI that will allow us to supplement the client and the server with new extensions. These new extensions will be a part of the distribution for both client and server.
+Definition and meaning of the encoding is a contract between client and the server.
 
-### Backward compatibility
+#### Spooling
 
-Above and for all, the new extensions can't break existing protocols as these are opt-in client/server features. At any given moment, the client can fall back to the original, unmodified v1 protocol to maintain backward compatibility.
+Spooling by definition means buffering data in a separate location by the server and retrieving it later by the client. In order to support `spooled protocol extension` servers (coordinator and workers) are required to be configured to use the spooling. In the initial implementation we plan to add a plugin SPI for the `SpoolingManager` and implementation based on the `native file-system API`. `SpoolingManager` is responsible for both storing and retrieving `spooled` data segments from the external storage.
 
-### Class hierarchy
+#### Segments
 
-![EncodedQueryData (1)](https://github.com/wendigo/wendigo/assets/66972/d4409719-5881-4091-a070-217ce822e5d8)
+It's up to the server implementation whether the partial result set will be `inlined`, `spooled`, either or both. It's required that client requesting a `spooled protocol extensions` supports both types of the data segments.
+
+#### Plugabillity
+
+An encoding is a shared definition between the client and the server, therefore it can't be a Plugin SPI interface. In the initial implementation, we do not plan to provide an external SPI for adding new encodings. These will be shipped as part of the implementation of the client and server libraries. Spooling process on the server-side is pluggable with the new `SpoolingManager` SPI.
+
+#### Backward compatibility
+
+Above and for all, the new spooled protocol can't break existing one as it's an opt-in client/server feature. At any given moment, the client or the server can fall back to the original, unmodified v1 protocol to maintain backward compatibility.
+
+#### Performance
+
+For small result sets, spooling on the storage adds an additional overhead which can be avoided by inlining the data in the response. For larger ones, spooling allows faster, parallel data retrieval as the result set can be fully spooled and query finished as fast as possible and then retrieved, decoded and processed by the client after the query has already completed.
+
+We plan to implement spooling on the worker side which means that when the result set is partially or fully spooled, coordinator node is not involved in encoding of the data to a requested format and spooling it in the storage. According to our benchmarks, JSON encoding in the existing format accounts for significant amount of the CPU time during output processing. Initially we plan to support existing JSON format but the encoding will be moved to worker nodes which will reduce the load on the coordinator.
+
+#### Security
+
+We plan to add a support for data segment encryption at the later stage with the per-query, ephemeral encryption key. This is yet to be defined.
