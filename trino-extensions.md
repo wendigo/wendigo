@@ -59,7 +59,7 @@ To express the partial result sets having a different encoding, `spooled protoco
 These changes are:
 
 - New **data** field on-the-wire representation and semantics,
-- Additional headers (**Trino-Query-Data-Encoding**)
+- Additional headers (i.e. **Trino-Query-Data-Encoding**)
 
 ### Trino-Query-Data-Encoding
 
