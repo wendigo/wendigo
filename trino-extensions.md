@@ -117,7 +117,7 @@ Meaning of the fields is following:
 - **`spooled`** segment type points to the encoded partial result set spooled in the configured storage location. Location designated by the `URI dataUri` field value is used to retrieve spooled `byte[]` data from the spooling storage. `dataUri` is opaque and contains an authentication information which means that client implementation can retrieve spooled segment data by doing an ordinary `GET` HTTP call without any processing of the URI. It's worth to note that URI can point to arbitrary location including endpoints exposed on the coordinator or storage used for spooling (i.e. presigned URIs on S3). This depends on the actual implementation of the spooling manager and server configuration.
 
 > [!NOTE]
-> Data segments are returned in the order specified by the query semantics.
+> Data segments are returned in the order specified by the query semantics. Data is spooled when client library requests next batch of result set data by following `nextUri`. It's up to the client library to decide whether all segments will be spooled at once, buffered and then read.
 
 > [!IMPORTANT]
 > In order to support the spooled protocol, client implementations need to support both inline and spooled representations as server can use these interchangeably.
