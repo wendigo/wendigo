@@ -85,7 +85,7 @@ The header is used by the client libraries to use the new `spooled protocol exte
         "type": "inline",
         "data": "c3VwZXI=",
         "metadata": {
-          "offset": 0,
+          "rowOffset": 0,
           "rowsCount": 100,
           "byteSize": 5
         }
@@ -94,7 +94,7 @@ The header is used by the client libraries to use the new `spooled protocol exte
         "type": "spooled",
         "dataUri": "http://localhost:8080/v1/download/20160128_214710_00012_rk68b/segments/2",
         "metadata": {
-          "offset": 200,
+          "rowOffset": 200,
           "rowsCount": 100,
           "byteSize": 1024
         }
@@ -129,7 +129,7 @@ Meaning of the fields is following:
 
 Following metadata attributes are always present:
 
-- **`offset`** of the data segment in relation to the whole result set (`long`),
+- **`rowOffset`** of the data segment in relation to the whole result set (`long`),
 - **`rowsCount`** number of the rows in the data segment (`long`),
 - **`byteSize`** size of the encoded data segment (`long`).
   
