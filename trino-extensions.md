@@ -146,7 +146,7 @@ Encoding describes the serialization format (like JSON) and other information re
 - `parquet+snappy` which reads as parquet encoding with Snappy compression.
   
 
-Definition and meaning of the encoding is a contract between client and the server.
+Definition and meaning of the encoding is a contract between client and the server and will be specified separately in the future for each encoding.
 
 #### Spooling
 
