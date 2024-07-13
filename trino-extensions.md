@@ -132,9 +132,8 @@ Following metadata attributes are always present:
 - **`rowOffset`** of the data segment in relation to the whole result set (`long`),
 - **`rowsCount`** number of the rows in the data segment (`long`),
 - **`byteSize`** size of the encoded data segment (`long`).
-  
 
-Optional metadata attributes are part of the encoding definition shared between the client and server implementations.
+Optional metadata attributes can be a part of the encoding definition shared between the client and server implementations (to be discussed).
 
 ### Implementation considerations
 
@@ -145,7 +144,6 @@ Encoding describes the serialization format (like JSON) and other information re
 - `json-ext+zstd` which reads as JSON serialization with ZSTD compression,
 - `parquet+snappy` which reads as parquet encoding with Snappy compression.
   
-
 Definition and meaning of the encoding is a contract between client and the server and will be specified separately in the future for each encoding.
 
 #### Spooling
@@ -196,7 +194,7 @@ public interface QueryDataEncoder
     String encodingId();
 }
 ```
-Used to encode the data to the output format.
+Used to encode the data in the specified output format.
 
 ```java
 public interface SpoolingManager
