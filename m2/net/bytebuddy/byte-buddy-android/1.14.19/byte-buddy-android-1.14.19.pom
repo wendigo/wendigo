@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>net.bytebuddy</groupId>
+        <artifactId>byte-buddy-parent</artifactId>
+        <version>1.14.19</version>
+    </parent>
+
+    <artifactId>byte-buddy-android</artifactId>
+    <packaging>jar</packaging>
+
+    <properties>
+        <version.android.sdk.dx>11.0.0_r3</version.android.sdk.dx>
+        <version.commons-codec>1.15</version.commons-codec>
+        <version.httpcomponents>4.5.13</version.httpcomponents>
+        <version.org-json>20231013</version.org-json>
+    </properties>
+
+    <name>Byte Buddy for Android</name>
+    <description>Byte Buddy Android allows for limited support of code generation on an Android runtime.</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>byte-buddy</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.android</groupId>
+            <artifactId>android</artifactId>
+            <version>${version.android.sdk}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.jakewharton.android.repackaged</groupId>
+            <artifactId>dalvik-dx</artifactId>
+            <version>${version.android.sdk.dx}</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${version.junit}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${version.mockito}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>net.bytebuddy</groupId>
+                    <artifactId>byte-buddy</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>net.bytebuddy</groupId>
+                    <artifactId>byte-buddy-agent</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>${version.commons-codec}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${version.httpcomponents}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.json</groupId>
+                <artifactId>json</artifactId>
+                <version>${version.org-json}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>..</directory>
+                <targetPath>META-INF</targetPath>
+                <filtering>true</filtering>
+                <includes>
+                    <include>LICENSE</include>
+                    <include>NOTICE</include>
+                </includes>
+            </resource>
+        </resources>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>${version.plugin.javadoc}</version>
+                    <configuration>
+                        <offlineLinks>
+                            <link>
+                                <url>https://javadoc.io/doc/net.bytebuddy/byte-buddy/${project.version}</url>
+                                <location>${project.basedir}/../byte-buddy/target/apidocs</location>
+                            </link>
+                        </offlineLinks>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>java6-compatibility</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+                <jdk>1.6</jdk>
+            </activation>
+            <properties>
+                <version.android.sdk.dx>1</version.android.sdk.dx>
+            </properties>
+        </profile>
+    </profiles>
+
+</project>
