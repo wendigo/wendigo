@@ -1,9 +1,9 @@
-### Hi there fellow engineer 👋
+### Hi there, fellow engineer 👋
 
-My name is Mateusz 'Serafin' Gajewski and I'm a Senior Staff Software Engineer, OSS Maintainer and Software Janitor [1] at [Starburst Data](https://github.com/starburstdata) which is a company responsible for the development of the [Trino](http://github.com/trinodb/trino) MPP, distributed, federated, SQL Ansi-compliant, query engine.
+I’m Mateusz “Serafin” Gajewski - Senior Staff Software Engineer, OSS Maintainer, and self-proclaimed Software Janitor [1] at [Starburst Data](https://starburst.io), the company behind Trino — a massively parallel, distributed, federated, ANSI SQL–compliant query engine.
 
 You can find more details about me on my website [wendigo.pl](https://wendigo.pl) or my [LinkedIn](https://www.linkedin.com/in/mateuszgajewski/).
 
-Feel free to reach me if you want to ask me about anything 🙂
+Got a question? Just ask — I’m always happy to chat  🙂
 
-[1] Person that tells others which door to take, holds a bunch of keys to different places and constantly cleans the place up :)
+[1] A janitor in the best sense: pointing people to the right doors, holding the keys to many places, and keeping everything tidy.
